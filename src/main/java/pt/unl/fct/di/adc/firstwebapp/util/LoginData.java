@@ -11,5 +11,9 @@ public class LoginData {
 		this.username = username;
 		this.password = password;
 	}
+
+	public boolean isValidLogin() {
+		return username != null && !username.isBlank() && password != null && !password.isBlank();
+	}
 	
 }

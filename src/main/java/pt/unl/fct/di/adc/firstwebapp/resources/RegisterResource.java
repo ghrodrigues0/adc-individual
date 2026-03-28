@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
@@ -19,10 +20,12 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Transaction;
 import com.google.cloud.datastore.DatastoreOptions;
 
-import pt.unl.fct.di.adc.firstwebapp.util.LoginData;
 import pt.unl.fct.di.adc.firstwebapp.util.RegisterData;
+import pt.unl.fct.di.adc.firstwebapp.util.requests.RegisterRequest;
+import pt.unl.fct.di.adc.firstwebapp.util.responses.ResponseError;
+import pt.unl.fct.di.adc.firstwebapp.util.responses.ResponseRegister;
 
-@Path("/register")
+@Path("/createaccount")
 public class RegisterResource {
 
 	private static final Logger LOG = Logger.getLogger(RegisterResource.class.getName());
@@ -30,94 +33,55 @@ public class RegisterResource {
 
 	private final Gson g = new Gson();
 
+	public RegisterResource() {
+	} // Default constructor, nothing to do
 
-	public RegisterResource() {}	// Default constructor, nothing to do
-	
 	@POST
-	@Path("/v1")
 	@Consumes(MediaType.APPLICATION_JSON)
-	
-	public Response registerUserV1(LoginData data) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response registerUser(RegisterRequest req) {
+
+		RegisterData data = req.input;
+
 		LOG.fine("Attempt to register user: " + data.username);
-	
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = Entity.newBuilder(userKey)
-						.set("user_pwd", DigestUtils.sha512Hex(data.password))
-						.set("user_creation_time", Timestamp.now())
+
+		if (!data.validRegistration())
+			return Response.ok()
+					.entity(new ResponseError("INVALID_INPUT", 9906, ResponseError.ErrorMsgs.INVALID_INPUT))
+					.build();
+
+		Transaction txn = datastore.newTransaction();
+
+		try {
+
+			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+			Entity user = txn.get(userKey);
+
+			if (user != null) {
+				txn.rollback();
+				return Response.ok()
+						.entity(new ResponseError("USER_ALREADY_EXISTS", 9901, ResponseError.ErrorMsgs.USER_ALREADY_EXISTS))
 						.build();
-		datastore.put(user);
-		LOG.info("User registered " + data.username);
-		return Response.ok().entity(g.toJson(true)).build();
-    }
-
-    @POST
-	@Path("/v2")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response registerUserV2(RegisterData data) {
-		LOG.fine("Attempt to register user: " + data.username);
-
-		if(!data.validRegistration())
-			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-					
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = datastore.get(userKey);
-		
-		if(user != null)
-			return Response.status(Status.BAD_REQUEST).entity("User already exists.").build();
-		
-		user = Entity.newBuilder(userKey)
-				.set("user_name", data.name)
-				.set("user_pwd", DigestUtils.sha512Hex(data.password))
-				.set("user_email", data.email)
-				.set("user_creation_time", Timestamp.now())
-				.build();
-
-		// Concurrency problem...
-		// When we reach here, another client might have put() an entity with the same key...
-		
-		datastore.put(user);
-		LOG.info("User registered " + data.username);
-		
-		
-		return Response.ok().build();
+			} else {
+				user = Entity.newBuilder(userKey)
+						.set("user_name", data.username)
+						.set("user_pwd", DigestUtils.sha512Hex(data.password))
+						.set("phone", data.phone)
+						.set("address", data.address)
+						.set("role", data.role)
+						.set("creation_time", Timestamp.now())
+						.build();
+				txn.put(user);
+				txn.commit();
+				LOG.info("User registered " + data.username);
+				return Response.ok(new ResponseRegister("success", data.username, data.role)).build();
+			}
+		} catch (Exception e) {
+			LOG.severe("Error registering user: " + e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error registering user.").build();
+		} finally {
+			if (txn.isActive())
+				txn.rollback();
+		}
 	}
-
-    @POST
-    @Path("/v3")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response registerUserV3(RegisterData data) {
-        LOG.fine("Attempt to register user: " + data.username);
-
-        if(!data.validRegistration())
-            return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-
-        try {
-            Transaction txn = datastore.newTransaction();
-            Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-            Entity user = txn.get(userKey);
-
-            if(user != null) {
-                txn.rollback();
-                return Response.status(Status.CONFLICT).entity("User already exists.").build();
-            }            
-            else {
-                user = Entity.newBuilder(userKey)
-                        .set("user_name", data.name)
-                        .set("user_pwd", DigestUtils.sha512Hex(data.password))
-                        .set("user_email", data.email)
-                        .set("user_creation_time", Timestamp.now())
-                        .build();
-                txn.put(user);
-                txn.commit();
-                LOG.info("User registered " + data.username);
-                return Response.ok().build();
-            }
-        } catch (Exception e) {
-            LOG.severe("Error registering user: " + e.getMessage());
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity("Error registering user.").build();
-        }
-        finally {
-            // No need to rollback here, as we only have one transaction and it will be automatically rolled back if not committed.
-        }
-    }
 }
