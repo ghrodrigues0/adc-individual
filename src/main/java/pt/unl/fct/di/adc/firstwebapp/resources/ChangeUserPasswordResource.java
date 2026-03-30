@@ -53,8 +53,7 @@ public class ChangeUserPasswordResource {
                     .entity(new ResponseError("INVALID_TOKEN", 9903, ResponseError.ErrorMsgs.INVALID_TOKEN))
                     .build();
 
-        long nowMs = System.currentTimeMillis();
-        if (sessionEntity.getTimestamp("expiresAt").toDate().getTime() < nowMs)
+        if (sessionEntity.getTimestamp("expiresAt").toDate().getTime() < System.currentTimeMillis())
             return Response.ok()
                     .entity(new ResponseError("TOKEN_EXPIRED", 9904, ResponseError.ErrorMsgs.TOKEN_EXPIRED))
                     .build();

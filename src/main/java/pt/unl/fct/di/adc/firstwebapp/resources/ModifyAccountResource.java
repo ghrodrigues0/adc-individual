@@ -106,8 +106,15 @@ public class ModifyAccountResource {
 
       Entity.Builder updatedUser = Entity.newBuilder(userEntity);
 
-      if (input.attributes.phone != null && !input.attributes.phone.isBlank())
+      if (input.attributes.phone != null && !input.attributes.phone.isBlank()) {
+        if (!input.attributes.phone.matches("\\d{9}")) {
+          txn.rollback();
+          return Response.ok()
+              .entity(new ResponseError("INVALID_INPUT", 9906, ResponseError.ErrorMsgs.INVALID_INPUT))
+              .build();
+        }
         updatedUser.set("phone", input.attributes.phone);
+      }
 
       if (input.attributes.address != null && !input.attributes.address.isBlank())
         updatedUser.set("address", input.attributes.address);

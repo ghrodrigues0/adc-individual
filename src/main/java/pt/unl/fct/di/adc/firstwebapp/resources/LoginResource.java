@@ -122,8 +122,12 @@ public class LoginResource {
 					.set("user_login_latlon", cityLatLong != null
 							? StringValue.newBuilder(cityLatLong).setExcludeFromIndexes(true).build()
 							: StringValue.newBuilder("").setExcludeFromIndexes(true).build())
-					.set("user_login_city", headers.getHeaderString("X-AppEngine-City"))
-					.set("user_login_country", headers.getHeaderString("X-AppEngine-Country"))
+					.set("user_login_city", headers.getHeaderString("X-AppEngine-City") != null
+							? headers.getHeaderString("X-AppEngine-CIty")
+							: "")
+					.set("user_login_country", headers.getHeaderString("X-AppEngine-Country") != null
+							? headers.getHeaderString("X-AppEngine-Country")
+							: "")
 					.set("user_login_time", Timestamp.now())
 					.build();
 
@@ -142,7 +146,7 @@ public class LoginResource {
 			return Response.ok(new ResponseLogin(token)).build();
 		} catch (Exception e) {
 			txn.rollback();
-			LOG.severe(e.getMessage());
+			LOG.severe(e.getClass().getName() + ": " + e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		} finally {
 			if (txn.isActive()) {

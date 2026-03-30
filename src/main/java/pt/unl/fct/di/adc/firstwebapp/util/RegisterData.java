@@ -38,6 +38,8 @@ public class RegisterData {
 				(nonEmptyOrBlankField(role) &&
 						(role.equals("USER") ||
 								role.equals("BOFFICER") ||
-								role.equals("ADMIN")));
+								role.equals("ADMIN")))
+				&&
+				nonEmptyOrBlankField(phone) && phone.matches("\\d{9}");
 	}
 }
