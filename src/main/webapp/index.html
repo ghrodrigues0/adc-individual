@@ -1,30 +1,34 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-
+<html lang="pt-PT">
 <head>
-  <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
-  <title>ADC: My First Web App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operações REST - Avaliação</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-
 <body>
-  <h1>Welcome to this very simple web application!</h1>
-
-  <table>
-    <tr>
-      <td colspan="2" style="font-weight:bold;">Available Services:</td>
-    </tr>
-    <tr>
-      <td><a href='/rest/utils/hello'>Say Hello!</a></td>
-      <td>(greetings)</td>
-    </tr>
-    <tr>
-      <td><a href='/rest/utils/time'>What time is it?</a></td>
-      <td>(see server time)</td>
-    </tr>
-  </table>
+    <header>
+        <h1>Painel de Operações REST</h1>
+    </header>
+    
+    <main>
+        <section class="operations-menu">
+            <h2>Lista de Operações Disponíveis</h2>
+            <nav>
+                <ul>
+                    <li><a href="html/createAccount.html">Op1: Criar Conta (/createaccount)</a></li>
+                    <li><a href="html/login.html">Op2: Iniciar Sessão (/login)</a></li>
+                    <li><a href="html/showUsers.html">Op3: Mostrar Utilizadores (/showusers)</a></li>
+                    <li><a href="html/deleteAccount.html">Op4: Eliminar Conta (/deleteaccount)</a></li>
+                    <li><a href="html/modifyAccount.html">Op5: Modificar Atributos (/modaccount)</a></li>
+                    <li><a href="html/showSessions.html">Op6: Mostrar Sessões Autenticadas (/showauthsessions)</a></li>
+                    <li><a href="html/showUserRole.html">Op7: Mostrar Papel (/showuserrole)</a></li>
+                    <li><a href="html/changeUserRole.html">Op8: Alterar Papel (/changeuserrole)</a></li>
+                    <li><a href="html/changePassword.html">Op9: Alterar Palavra-passe (/changeuserpwd)</a></li>
+                    <li><a href="html/logout.html">Op10: Terminar Sessão (/logout)</a></li>
+                </ul>
+            </nav>
+        </section>
+    </main>
 </body>
-<footer>
-  Copyright: ADC-PEI, FCT NOVA 2026
-</footer>
-
 </html>

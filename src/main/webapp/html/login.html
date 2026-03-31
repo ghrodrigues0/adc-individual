@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <style>
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Iniciar Sessão</h2>
+    <div class="row">
+      <input type="text" id="username" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <input type="button" id="btn-login" value="Login" />
+    </div>
+    <hr />
+    <p>Resultado da Operação:</p>
+    <main id="OpResult"></main>
+    <script src="../js/login.js"></script>
+    <hr />
+    <p><a href="../index.html">Voltar à página principal</a></p>
+  </body>
+</html>

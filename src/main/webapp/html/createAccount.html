@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Criar Conta</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <style>
+      .row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Registar Nova Conta</h2>
+    <div class="row">
+      <input
+        type="text"
+        id="username"
+        placeholder="Email (ex: xp@adc.pt)"
+        required
+      />
+      <input type="password" id="password" placeholder="Password" required />
+      <input
+        type="password"
+        id="confirmation"
+        placeholder="Confirmar Password"
+        required
+      />
+    </div>
+    <div class="row">
+      <input type="text" id="phone" placeholder="Telefone" />
+      <input type="text" id="address" placeholder="Morada" />
+      <select id="role">
+        <option value="USER">USER</option>
+        <option value="BOFFICER">BOFFICER</option>
+        <option value="ADMIN">ADMIN</option>
+      </select>
+      <input type="button" id="btn-register" value="Criar Conta" />
+    </div>
+    <hr />
+    <p>Resultado da Operação:</p>
+    <main id="OpResult"></main>
+    <script src="../js/createAccount.js"></script>
+    <hr />
+    <p><a href="../index.html">Voltar à página principal</a></p>
+  </body>
+</html>

@@ -58,8 +58,7 @@ public class ChangeUserPasswordResource {
                     .entity(new ResponseError("TOKEN_EXPIRED", 9904, ResponseError.ErrorMsgs.TOKEN_EXPIRED))
                     .build();
 
-        String callerUsername = sessionEntity.getString("username");
-        if (!callerUsername.equals(input.username))
+        if (!sessionEntity.getString("username").equals(input.username))
             return Response.ok()
                     .entity(new ResponseError("FORBIDDEN", 9907, ResponseError.ErrorMsgs.FORBIDDEN))
                     .build();
