@@ -114,4 +114,5 @@ The API contract still follows the course specification. These are the things I 
 
 - **HTTP semantics:** use proper status codes (400, 401, 403, 404, 409) instead of 200 with an error code, `GET`/`PUT`/`DELETE` where they fit, and the token in the `Authorization` header instead of the body.
 - **Duplicated auth checks:** each resource validates the token itself. This belongs in a single `ContainerRequestFilter`.
+- **Last-admin protection:** an `ADMIN` can delete their own account or remove their own `ADMIN` role, even when they are the only admin, which leaves no one able to manage roles.
 - **Tests and CI:** no automated tests yet. Next are JUnit 5 unit tests, integration tests against the Datastore emulator, and a GitHub Actions workflow.

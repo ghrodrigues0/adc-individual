@@ -2,7 +2,6 @@ package pt.unl.fct.di.adc.firstwebapp.resources;
 
 import com.google.api.ErrorReason;
 import com.google.cloud.datastore.*;
-import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -29,8 +28,6 @@ public class ShowUsersResource {
 
   private static final Logger LOG = Logger.getLogger(ShowUsersResource.class.getName());
   private static final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
-  private final Gson g = new Gson();
 
   public ShowUsersResource() {
   }

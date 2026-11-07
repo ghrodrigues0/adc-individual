@@ -10,7 +10,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-import com.google.gson.Gson;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Entity;
@@ -35,8 +34,6 @@ public class RegisterResource {
 
 	private static final Logger LOG = Logger.getLogger(RegisterResource.class.getName());
 	private static final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
-	private final Gson g = new Gson();
 
 	public RegisterResource() {
 	} // Default constructor, nothing to do

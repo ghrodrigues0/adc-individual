@@ -1,7 +1,6 @@
 package pt.unl.fct.di.adc.firstwebapp.resources;
 
 import com.google.cloud.datastore.*;
-import com.google.gson.Gson;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import pt.unl.fct.di.adc.firstwebapp.util.AuthToken;
@@ -20,7 +19,6 @@ public class ChangeUserPasswordResource {
 
     private static final Logger LOG = Logger.getLogger(ChangeUserPasswordResource.class.getName());
     private static final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    private final Gson g = new Gson();
 
     public ChangeUserPasswordResource() {
     }
