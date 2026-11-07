@@ -96,14 +96,15 @@ The API contract was set by the course assignment: errors are returned with HTTP
 
 You need a Google Cloud project with App Engine and Datastore enabled, and the `gcloud` CLI authenticated.
 
-1. Set your project ID in `src/main/webapp/WEB-INF/appengine-web.xml` (`<application>`).
-2. Build and deploy with the App Engine Maven plugin:
+1. Build and deploy with the App Engine Maven plugin, passing your project ID:
 
    ```bash
-   mvn package appengine:deploy
+   mvn clean package appengine:deploy -Dapp.deploy.projectId=YOUR_PROJECT_ID -Dapp.deploy.version=GCLOUD_CONFIG
    ```
 
-3. Open the deployed URL. `index.html` links to a page for each operation.
+   In PowerShell, put each `-D` argument in quotes.
+
+2. Open the deployed URL. `index.html` links to a page for each operation.
 
 **Creating the first admin:** registration only creates `USER` accounts. Register an account, then set its `role` property to `ADMIN` on the `User` entity in the Datastore console. From there, that admin can promote others with `/changeuserrole`.
 
