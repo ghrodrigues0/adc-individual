@@ -1,0 +1,19 @@
+# Maven
+target/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Google Cloud credentials (never commit these)
+*.json.key
+*-credentials.json
+service-account*.json
