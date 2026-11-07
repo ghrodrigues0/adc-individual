@@ -31,15 +31,12 @@ public class RegisterData {
 
 	public boolean validRegistration() {
 
+		// The role is no longer chosen by the client: RegisterResource always
+		// creates USER accounts, so any "role" field sent is ignored.
 		return nonEmptyOrBlankField(username) &&
 				nonEmptyOrBlankField(password) &&
 				username.contains("@") &&
 				password.equals(confirmation) &&
-				(nonEmptyOrBlankField(role) &&
-						(role.equals("USER") ||
-								role.equals("BOFFICER") ||
-								role.equals("ADMIN")))
-				&&
 				nonEmptyOrBlankField(phone) && phone.matches("\\d{9}");
 	}
 }

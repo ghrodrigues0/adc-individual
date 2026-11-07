@@ -2,8 +2,6 @@ package pt.unl.fct.di.adc.firstwebapp.resources;
 
 import java.util.logging.Logger;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Consumes;
@@ -20,6 +18,7 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Transaction;
 import com.google.cloud.datastore.DatastoreOptions;
 
+import pt.unl.fct.di.adc.firstwebapp.util.PasswordHasher;
 import pt.unl.fct.di.adc.firstwebapp.util.RegisterData;
 import pt.unl.fct.di.adc.firstwebapp.util.requests.RegisterRequest;
 import pt.unl.fct.di.adc.firstwebapp.util.responses.ResponseError;
@@ -27,6 +26,12 @@ import pt.unl.fct.di.adc.firstwebapp.util.responses.ResponseRegister;
 
 @Path("/createaccount")
 public class RegisterResource {
+
+	/**
+	 * Every self-registered account starts as USER. Only an ADMIN can change a
+	 * role afterwards, through /changeuserrole.
+	 */
+	private static final String DEFAULT_ROLE = "USER";
 
 	private static final Logger LOG = Logger.getLogger(RegisterResource.class.getName());
 	private static final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -65,16 +70,16 @@ public class RegisterResource {
 			} else {
 				user = Entity.newBuilder(userKey)
 						.set("user_name", data.username)
-						.set("user_pwd", DigestUtils.sha512Hex(data.password))
+						.set("user_pwd", PasswordHasher.hash(data.password))
 						.set("phone", data.phone)
 						.set("address", data.address)
-						.set("role", data.role)
+						.set("role", DEFAULT_ROLE)
 						.set("creation_time", Timestamp.now())
 						.build();
 				txn.put(user);
 				txn.commit();
 				LOG.info("User registered " + data.username);
-				return Response.ok(new ResponseRegister("success", data.username, data.role)).build();
+				return Response.ok(new ResponseRegister("success", data.username, DEFAULT_ROLE)).build();
 			}
 		} catch (Exception e) {
 			LOG.severe("Error registering user: " + e.getMessage());

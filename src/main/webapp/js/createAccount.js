@@ -6,8 +6,7 @@ async function registerAccount() {
 		password: document.getElementById("password").value,
 		confirmation: document.getElementById("confirmation").value,
 		phone: document.getElementById("phone").value,
-		address: document.getElementById("address").value,
-		role: document.getElementById("role").value
+		address: document.getElementById("address").value
 	};
 
 	const payload = { input: inputData };

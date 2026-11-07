@@ -4,8 +4,8 @@ import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-import org.apache.commons.codec.digest.DigestUtils;
 import pt.unl.fct.di.adc.firstwebapp.util.AuthToken;
+import pt.unl.fct.di.adc.firstwebapp.util.PasswordHasher;
 import pt.unl.fct.di.adc.firstwebapp.util.responses.ResponseError;
 import pt.unl.fct.di.adc.firstwebapp.util.responses.ResponseChangeUserPassword;
 import pt.unl.fct.di.adc.firstwebapp.util.requests.ChangeUserPasswordRequest;
@@ -77,7 +77,7 @@ public class ChangeUserPasswordResource {
             }
 
             String storedHash = user.getString("user_pwd");
-            if (!storedHash.equals(DigestUtils.sha512Hex(input.oldPassword))) {
+            if (!PasswordHasher.matches(input.oldPassword, storedHash)) {
                 txn.rollback();
                 return Response.ok()
                         .entity(new ResponseError("INVALID_CREDENTIALS", 9900, ResponseError.ErrorMsgs.INVALID_CREDENTIALS))
@@ -85,7 +85,7 @@ public class ChangeUserPasswordResource {
             }
 
             Entity updatedUser = Entity.newBuilder(user)
-                    .set("user_pwd", DigestUtils.sha512Hex(input.newPassword))
+                    .set("user_pwd", PasswordHasher.hash(input.newPassword))
                     .build();
 
             txn.put(updatedUser);

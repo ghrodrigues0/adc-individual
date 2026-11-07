@@ -6,8 +6,6 @@ import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -25,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import pt.unl.fct.di.adc.firstwebapp.util.AuthToken;
 import pt.unl.fct.di.adc.firstwebapp.util.LoginData;
+import pt.unl.fct.di.adc.firstwebapp.util.PasswordHasher;
 import pt.unl.fct.di.adc.firstwebapp.util.requests.LoginRequest;
 import pt.unl.fct.di.adc.firstwebapp.util.responses.ResponseError;
 import pt.unl.fct.di.adc.firstwebapp.util.responses.ResponseLogin;
@@ -100,19 +99,34 @@ public class LoginResource {
 		try {
 			Entity user = txn.get(userKey);
 			if (user == null) {
-				// Username does not exist
-				LOG.warning(LOG_MESSAGE_LOGIN_ATTEMP + data.username);
+				// Unknown username: answer exactly as for a wrong password, and spend
+				// the same time on a hash check, so callers can't tell which
+				// usernames are registered.
+				PasswordHasher.simulateCheck(data.password);
+				LOG.warning(LOG_MESSAGE_UNKNOW_USER + data.username);
 
-				return Response.ok()
-						.entity(new ResponseError("USER_NOT_FOUND", 9902, ResponseError.ErrorMsgs.USER_NOT_FOUND))
-						.build();
-			}
-
-			String hashedPWD = (String) user.getString(USER_PWD);
-			if (!hashedPWD.equals(DigestUtils.sha512Hex(data.password)))
 				return Response.ok()
 						.entity(new ResponseError("INVALID_CREDENTIALS", 9900, ResponseError.ErrorMsgs.INVALID_CREDENTIALS))
 						.build();
+			}
+
+			String hashedPWD = user.getString(USER_PWD);
+			if (!PasswordHasher.matches(data.password, hashedPWD)) {
+				LOG.warning(LOG_MESSAGE_WRONG_PASSWORD + data.username);
+				return Response.ok()
+						.entity(new ResponseError("INVALID_CREDENTIALS", 9900, ResponseError.ErrorMsgs.INVALID_CREDENTIALS))
+						.build();
+			}
+
+			// Accounts created before the switch to bcrypt still hold a SHA-512
+			// hash. The password was just verified, so replace it with a bcrypt
+			// hash in this same transaction.
+			if (PasswordHasher.needsRehash(hashedPWD)) {
+				user = Entity.newBuilder(user)
+						.set(USER_PWD, PasswordHasher.hash(data.password))
+						.build();
+				txn.put(user);
+			}
 
 			AuthToken token = new AuthToken(data.username, user.getString("role"));
 			String cityLatLong = headers.getHeaderString("X-AppEngine-CityLatLong");
