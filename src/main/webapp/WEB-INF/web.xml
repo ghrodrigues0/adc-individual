@@ -2,7 +2,7 @@
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
 
-	<display-name>My First Web Application</display-name>
+	<display-name>User Management API</display-name>
 
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
@@ -32,11 +32,6 @@
 		<init-param>
 			<param-name>jersey.config.servlet.filter.contextPath</param-name>
 			<param-value>/rest/*</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>jersey.config.server.tracing.type</param-name>
-			<param-value>ALL</param-value> <!-- This is a debug utility that should be disabled when code goes to production -->
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>

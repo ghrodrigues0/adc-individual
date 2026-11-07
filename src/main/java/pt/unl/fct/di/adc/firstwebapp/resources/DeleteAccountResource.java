@@ -1,7 +1,6 @@
 package pt.unl.fct.di.adc.firstwebapp.resources;
 
 import com.google.cloud.datastore.*;
-import com.google.gson.Gson;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import pt.unl.fct.di.adc.firstwebapp.util.AuthToken;
@@ -19,7 +18,7 @@ public class DeleteAccountResource {
 
   private static final Logger LOG = Logger.getLogger(DeleteAccountResource.class.getName());
   private static final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-  private final Gson g = new Gson();
+  private static final int MAX_BATCH = 500;
 
   public DeleteAccountResource() {
   }
@@ -28,6 +27,11 @@ public class DeleteAccountResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   public Response deleteAccount(DeleteAccountRequest req) {
+
+    if (req == null || req.input == null || req.input.username == null || req.input.username.isBlank())
+      return Response.ok()
+          .entity(new ResponseError("INVALID_INPUT", 9906, ResponseError.ErrorMsgs.INVALID_INPUT))
+          .build();
 
     AuthToken token = req.token;
     String target = req.input.username;
@@ -77,11 +81,20 @@ public class DeleteAccountResource {
       List<Key> sessionKeysToDelete = new ArrayList<>();
       sessions.forEachRemaining(s -> sessionKeysToDelete.add(s.getKey()));
 
+      // Login logs are children of the User entity and hold personal data
+      // (IP address, location), so they go with the account.
+      Query<Key> logsQuery = Query.newKeyQueryBuilder()
+          .setKind("UserLog")
+          .setFilter(StructuredQuery.PropertyFilter.hasAncestor(userKey))
+          .build();
+      List<Key> logKeysToDelete = new ArrayList<>();
+      datastore.run(logsQuery).forEachRemaining(logKeysToDelete::add);
+
       txn.delete(userKey);
       txn.commit();
 
-      if (!sessionKeysToDelete.isEmpty())
-        datastore.delete(sessionKeysToDelete.toArray(new Key[0]));
+      deleteInBatches(sessionKeysToDelete);
+      deleteInBatches(logKeysToDelete);
 
       LOG.info("Account deleted: " + target);
       return Response.ok(new ResponseDeleteAccount()).build();
@@ -93,6 +106,12 @@ public class DeleteAccountResource {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 
+  }
+
+  // Datastore accepts at most 500 keys per delete call.
+  private static void deleteInBatches(List<Key> keys) {
+    for (int i = 0; i < keys.size(); i += MAX_BATCH)
+      datastore.delete(keys.subList(i, Math.min(i + MAX_BATCH, keys.size())).toArray(new Key[0]));
   }
 
 }

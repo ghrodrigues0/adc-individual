@@ -40,7 +40,7 @@ All endpoints live under `/rest`, accept and return JSON, and use `POST`. Authen
 | `/changeuserpwd` | the user | Change own password (requires the old one) |
 | `/modaccount` | the user; `BOFFICER` also for `USER` accounts; `ADMIN` for anyone | Update phone and address |
 | `/changeuserrole` | `ADMIN` | Change another user's role |
-| `/deleteaccount` | `ADMIN` | Delete a user and all their sessions |
+| `/deleteaccount` | `ADMIN` | Delete a user, their sessions and their login log |
 | `/showusers` | `BOFFICER`, `ADMIN` | List users |
 | `/showuserrole` | `BOFFICER`, `ADMIN` | Show a user's role |
 | `/showauthsessions` | `ADMIN` | List active sessions |
